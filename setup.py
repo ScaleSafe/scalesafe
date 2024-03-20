@@ -1,5 +1,8 @@
 from setuptools import setup, find_packages
 
+with open('requirements.txt') as f:
+    install_requires = f.read().splitlines()
+
 setup(
     name='scalesafe',
     version='0.0.1',  # Semantic Versioning (https://semver.org/)
@@ -15,9 +18,7 @@ setup(
     url='https://scalesafe.ai', 
     license='MIT', 
     packages=find_packages(),
-    install_requires=[
-        'requests', 
-    ],
+    install_requires=install_requires,
     extras_require={
         'dev': [
             'pytest>=6.2.5',
