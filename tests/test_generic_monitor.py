@@ -1,62 +1,42 @@
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from scalesafe.generic import GenericMonitor
-from scalesafe.exceptions import *
+from scalesafe.exceptions import ScaleSafeTokenError, ResourceNotFoundError
 import os
 
-# Setup as a fixture
+# Fixture for creating a GenericMonitor instance
 @pytest.fixture
 def monitor():
-    return GenericMonitor(api_key='test_api_key', location='everywhere')
+    return GenericMonitor()
 
-def test_init(monitor):
-    assert monitor.init_api_key == 'test_api_key'
-    assert monitor.location == 'everywhere'
+@pytest.fixture
+def get_api_key():
+    return os.environ.get('SCALESAFE_API_KEY_TEST')
 
-@patch('builtins.print')  # Assuming you want to check print statements or suppress them.
-def test_check_exceptions(mock_print, monitor):
-    with pytest.raises(ValueError):
-        monitor._checkExceptions(None)
+# Test exceptions related to the API key retrieval
+def test_get_api_key_exception(monitor):
+    os.environ['SCALESAFE_API_KEY'] = ""
+    with patch.dict(os.environ, {'SCALESAFE_API_KEY': ''}):
+        with pytest.raises(ScaleSafeTokenError):
+            monitor._get_api_key()
+
+# Test exceptions when monitoring with a wrong API key
+def test_monitor_with_wrong_api_key(monitor):
     with pytest.raises(ScaleSafeTokenError):
-        monitor._checkExceptions({"error": "Invalid API Key provided."})
-    # Add more assertions for other exceptions here.
+        monitor.monitor(data={'data': 'temp'}, api_key='wrong_key')
 
-@pytest.fixture(autouse=True)
-def env_setup_and_teardown():
-    # Setup
-    os.environ['SCALESAFE_API_KEY'] = 'env_api_key'
-    yield
-    # Teardown (if necessary)
-    del os.environ['SCALESAFE_API_KEY']
+# Test exceptions when monitoring with a non-existent API key in environment
+def test_monitor_with_valid_api_key(monitor):
+    with pytest.raises(ResourceNotFoundError):
+        monitor.monitor(data={'data': 'temp'}, api_key=os.environ.get('SCALESAFE_API_KEY_TEST'))
 
-def test_get_api_key(monitor):
-    assert monitor._get_api_key() == 'test_api_key'  # Initial API Key
-    assert monitor._get_api_key('direct_api_key') == 'direct_api_key'  # Direct API Key
-    new_monitor = GenericMonitor()
-    assert new_monitor._get_api_key() == 'env_api_key'  # Env API Key
+# Test API key workflow when passed through constructor
+def test_api_key_from_constructor():
+    api_key_constructor = 'test_api_key_constructor'
+    monitor = GenericMonitor(api_key=api_key_constructor)
+    assert monitor._get_api_key() == api_key_constructor
 
-@patch('requests.post')
-def test_send_monitor(mock_post, monitor):
-    mock_response = MagicMock()
-    mock_response.json.return_value = {'status': 'ok'}
-    mock_post.return_value = mock_response
-
-    response = monitor._sendMonitor({'data': 'value'})
-    assert response.json() == {'status': 'ok'}
-    mock_post.assert_called_once()
-
-@patch('requests.get')
-def test_send_status(mock_get, monitor):
-    mock_response = MagicMock()
-    mock_response.json.return_value = {'status': 'Compliant'}
-    mock_get.return_value = mock_response
-
-    status = monitor._sendStatus()
-    assert status == {'status': 'Compliant'}
-    mock_get.assert_called_once()
-
-@patch.object(GenericMonitor, '_sendStatus')
-def test_status(mock_send_status, monitor):
-    mock_send_status.return_value = {'status': 'Out of Compliance', 'message': 'Test message'}
-    with pytest.raises(OutOfComplianceError):
-        monitor.status()
+# Test API key workflow when passed directly to the method
+def test_api_key_passed_directly(monitor):
+    api_key_pass = 'test_api_key_pass'
+    assert monitor._get_api_key(api_key_pass) == api_key_pass

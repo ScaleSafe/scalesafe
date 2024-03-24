@@ -41,17 +41,17 @@ class OpenAIAssistantMonitor(GenericMonitor):
     def __init__(self, api_key=None, location=None):
         super().__init__(api_key, location)
 
-    def monitor(self, response, api_key=None):
+    def monitor(self, run, messages, api_key=None):
         """
         response: AssistantCompletion - This is the response from the OpenAI assistant API.
         """
+        assert messages.data[0].assistant_id == run.assistant_id
         data = {
-            "model_version": response.model,
-            "model_start_time": response.created,
-            "model_end_time": response.created,
-            "model_inputs": response.prompt,
-            "model_outputs": response.choices[0].message.content,
-            "openai_response_id": response.id,
+          "model_version": run.assistant_id,
+          "model_start_time": run.created_at,
+          "model_end_time": run.completed_at if run.completed_at else run.cancelled_at,
+          "model_inputs": {'instructions': run.instructions},
+          "thread_id": run.thread_id,
+          "model_outputs": [c.text.value for c in messages.data[0].content],
         }
-
         return super().monitor(data, api_key)
