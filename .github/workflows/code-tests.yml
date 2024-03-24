@@ -37,5 +37,7 @@ jobs:
         # Run pylint on all python files in the directory
         pylint $(find . -type f -name "*.py")
     - name: Test with pytest
+      env:
+        SCALESAFE_API_KEY_TEST: ${{ secrets.SCALESAFE_API_KEY_TEST }}
       run: |
         pytest
