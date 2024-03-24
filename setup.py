@@ -5,7 +5,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='scalesafe',
-    version='0.0.1',  # Semantic Versioning (https://semver.org/)
+    version='0.0.2',  # Semantic Versioning (https://semver.org/)
     description='ScaleSafe Monitoring Engine: Toolkit for integrating monitoring into AI systems for compliance and safety.',
     long_description="""
         ScaleSafe is an open-source toolkit designed to integrate monitoring into AI systems, 
