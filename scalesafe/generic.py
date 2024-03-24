@@ -18,34 +18,26 @@ class GenericMonitor:
     def _checkExceptions(self, ss_response):
         """This method checks for exceptions in the returned data and raises the appropriate custom exceptions."""
 
-        if not ss_response:
-            raise ValueError("The response is empty or None.")
+        if not ss_response.text:
+            raise ValueError("The API response is empty or None.")
+        
+        ss_response_json = ss_response.json()
 
-        if "error" not in ss_response:
+        if "error" not in ss_response_json:
             return  # No error in the response, so just return
 
-        error_message = ss_response.get("error", "").lower()
+        error_message = ss_response_json.get("error", "").lower()
 
-        if "invalid api key" in error_message:
-            raise ScaleSafeTokenError("Invalid API Key provided.")
-        elif "api key not found" in error_message or "not active" in error_message:
-            raise ScaleSafeTokenError("API Key not found or not active.")
-        elif "rate limit exceeded" in error_message:
+        if ss_response.status_code == 401:
+            raise ScaleSafeTokenError(error_message)
+        elif ss_response.status_code == 429:
             raise APIRateLimitExceededError("API rate limit has been exceeded.")
-        elif "missing fields" in error_message or "data validation" in error_message:
-            raise DataValidationError(
-                "Data validation error: missing or incorrect fields."
-            )
-        elif "unauthorized" in error_message:
-            raise UnauthorizedAccessError("Unauthorized access attempt detected.")
-        elif (
-            "model not found" in error_message or "resource not found" in error_message
-        ):
-            raise ResourceNotFoundError("The requested resource was not found.")
-        elif "database operation" in error_message:
-            raise DatabaseOperationError("Database operation failed.")
+        elif ss_response.status_code == 404:
+            raise ResourceNotFoundError(error_message)
+        elif ss_response.status_code == 400:
+            raise ScaleSafeException(error_message)
         else:
-            raise ScaleSafeException("An unspecified error occurred.")
+            raise ScaleSafeException("An unspecified error occurred." + error_message)
 
     def _get_api_key(self, api_key_passed=None):
         if api_key_passed:
@@ -56,7 +48,7 @@ class GenericMonitor:
         if os_api_key:
             return os_api_key
         raise ScaleSafeTokenError(
-            "Scalesafe API Key not found in local environment. Please set the environment variable SCALESAFE_API_KEY or pass the api_key as an argument to the monitor method."
+            "Scalesafe API Key not found in local environment. Please set the environment variable SCALESAFE_API_KEY or pass the api_key as an argument to the monitor method. You can find an api key in the scalesafe dashboard."
         )
 
     def monitor(self, data, api_key=None):
@@ -64,7 +56,6 @@ class GenericMonitor:
         By default it will return the status of the AI system and raise an exception.
         Data is a flexible packet of information that can be used to monitor the AI system."""
         ss_response = self._sendMonitor(data, api_key)
-        self._checkExceptions(ss_response)
         return ss_response
 
     def _sendMonitor(self, data, api_key=None):
@@ -74,11 +65,10 @@ class GenericMonitor:
 
         headers = {"Authorization": f"Bearer {api_key}"}
 
-        url = "https://log-model-data-zc6tu6qxxa-uc.a.run.app"
+        url = "https://monitor-system-zc6tu6qxxa-uc.a.run.app"
         ss_response = requests.post(url, headers=headers, json=data)
-        ss_response.text
-        ss_response.raise_for_status()
-        return ss_response
+        self._checkExceptions(ss_response)
+        return ss_response.json()
 
     def status(self, api_key=None):
         """This method is used to check the status of the AI system."""
