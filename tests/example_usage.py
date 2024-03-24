@@ -1,5 +1,5 @@
 import os; os.chdir('..')
-from scalesafe.openai import OpenAIChatMonitor
+from scalesafe.openai import OpenAIChatMonitor, OpenAIAssistantMonitor
 from openai import OpenAI
 
 client = OpenAI()
@@ -43,6 +43,14 @@ assistant = client.beta.assistants.create(
 
 # Each thread needs to be monitored.
 thread = client.beta.threads.create()
+monitor = OpenAIAssistantMonitor()
+
+
+message = client.beta.threads.messages.create(
+    thread_id=thread.id,
+    role="user",
+    content="I need to solve the equation `3x + 11 = 14`. Can you help me?"
+)
 
 run = client.beta.threads.runs.create(
   thread_id=thread.id,
@@ -58,3 +66,9 @@ while run.status in ['queued', 'in_progress', 'cancelling']:
     run_id=run.id
   )
 
+messages = client.beta.threads.messages.list(
+  thread_id=thread.id
+)
+
+# This is now where you monitor the assistant
+res = monitor.monitor(run, messages)
