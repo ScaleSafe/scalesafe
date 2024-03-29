@@ -1,0 +1,1 @@
+Job Description:  We're seeking a talented Frontend Software Engineer to design and build the user-facing elements of our web applications. You'll work with HTML, CSS, JavaScript frameworks (React, Angular, or Vue.js), and collaborate with backend developers to deliver seamless and responsive user experiences.
