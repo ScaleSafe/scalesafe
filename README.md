@@ -14,7 +14,10 @@ To integrate with your app, choose the appropriate monitoring class and include 
 pip install scalesafe
 ```
 
-### OpenAI Chat Example
+#### API Keys
+For anything here to connect to the server, you need to set your API key. You can find your model-specific secret at [app.scalesafe.ai/models/<model>/api-keys](app.scalesafe.ai/models/<model>/api-keys). You can pass them to any function with `api_key=` or set them as an environment variable `SCALESAFE_API_KEY`. The key will look something like `sk-72cb69c4af4d406c854d135b66b67f-iy6liAQuToYDBIA1h44bfTq7Rgj1`. All monitoring, benchmarking, screening, and human-in-the-loop controls are unique to the model and its use case.
+
+### Monitoring OpenAI Chat Example
 When a synchronous AI model is being used, you just need to monitor the input and output of the model. This can be done with the `OpenAIChatMonitor` class.
 ```python
 from scalesafe.openai import OpenAIChatMonitor
@@ -45,7 +48,7 @@ except (UnsafeInputError, BannedOutputError) as e:
 ```
 
 ### Check Compliance Status
-If want to check if the model is still compliant with the requirements (which update overtime as regulation chnages), you can use the `status` method.
+If want to check if the model is still compliant with the requirements (which update overtime as regulation changes), you can use the `status` method.
 ```python
 from scalesafe.exceptions import OutOfComplianceError, HumanReviewNeededException
 try:
@@ -54,11 +57,24 @@ except OutOfComplianceError as e:
     print(f"Model is out of compliance. Error: {e}")
 ```
 
-### Human in the loop
+### Complete Required Benchmarks
+Some applications require that you complete certain benchmarks to ensure compliance. 
+```python
+from scalesafe.benchmarking import Benchmarker
+dataset = Benchmarker('nyEmploymentScreening') # Example bias screening for employment AI in New York
+
+for item in dataset:
+    print(item)  # Process the batch here
+    result = True if np.random.random() > 0.5 else False # Do some AI
+    dataset.answer(result, item['id'])  # We add our responses to the buffer
+
+dataset.post_answers() # We send them to our audit team for analysis
+```
+
+<!-- ### Human in the loop -->
 
 
-
-
+## Other examples
 
 ### For OpenAI Assistants
 This can be a little more complicated, as we're no longer working synchronously. We still need to monitor all the usage of the model (including start and end time). The simplest way to format this is to use the `OpenAIAssistantMonitor` class.
