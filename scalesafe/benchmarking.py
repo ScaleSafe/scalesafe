@@ -1,6 +1,7 @@
 
 import requests
 import os, json
+from .exceptions import *
 
 class Benchmarker:
     """
@@ -26,7 +27,7 @@ class Benchmarker:
         else:
             self.api_key = os.getenv("SCALESAFE_API_KEY")
             if not self.api_key:
-                raise ValueError("API key not provided or set in environment variables. Get one at app.scalesafe.com/models/<model>/api-keys.")
+                raise ScaleSafeTokenError("API key not provided or set in environment variables. Get one at app.scalesafe.com/models/<model>/api-keys.")
 
     def fetch_next_batch(self):
         """Fetch the next batch of data from the server and refill the buffer."""
@@ -112,7 +113,6 @@ class Benchmarker:
 
             response = requests.post('https://post-benchmark-response-zc6tu6qxxa-uc.a.run.app', json=data, headers=headers)
             if response.status_code != 200:
-                print(f"Error posting batch {i+1}: {response.json().get('error', 'Unknown error')}")
+                raise ScaleSafeException(f"Error posting batch {i+1}: {response.json().get('error', 'Unknown error')}")
             
-
         print("Answers uploaded successfully.")
