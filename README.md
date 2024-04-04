@@ -58,7 +58,7 @@ except OutOfComplianceError as e:
 ```
 
 ### Complete Required Benchmarks
-Some applications require that you complete certain benchmarks to ensure compliance. You can use the `complete_benchmark` method to do this.
+Some applications require that you complete certain benchmarks to ensure compliance. 
 ```python
 from scalesafe.benchmarking import Benchmarker
 dataset = Benchmarker('nyEmploymentScreening') # Example bias screening for employment AI in New York
