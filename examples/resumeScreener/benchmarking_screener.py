@@ -16,7 +16,7 @@ def analyze_resume(job_description, resume_text):
 
 
 
-dataset = Benchmarker('nyEmploymentScreeningText', api_key='sk-72cb69c4af4d406c854d235b66b67f-iy6liAQuToYDBIA1h44cfTq7Rgj1') # Example bias screening for employment AI in New York
+dataset = Benchmarker('nyEmploymentScreeningText', api_key='SCALESAFE_API_KEY') # Example bias screening for employment AI in New York
 
 for item in dataset:
     result = analyze_resume("Software Engineer", item['input'])
