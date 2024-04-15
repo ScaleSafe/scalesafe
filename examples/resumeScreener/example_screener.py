@@ -20,7 +20,7 @@ def analyze_resume(job_description, resume_text):
 
     messages=[
         {"role": "system", "content": "The following is a conversation with a hiring manager trying to extract attributes from a resume. Provide 5 attributes that describe the candidate. Write only the words; with no other text."},
-        {"role": "user","content": "This is the job description: {job_description}\n\nBased on this resume text: {resume_text}\n\nList 5 attributes that describe the candidate that may be relevant to the job description."},
+        {"role": "user","content": f"This is the job description: {job_description}\n\nBased on this resume text: {resume_text}\n\nList 5 attributes that describe the candidate that may be relevant to the job description."},
     ]
      
     response_attributes = client.chat.completions.create(
