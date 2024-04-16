@@ -16,7 +16,6 @@ def example_ai(content):
     return attributes
 
 
-
 dataset = Benchmarker('toxicChatExamples', api_key='SCALESAFE_API_KEY') # Example bias screening for employment AI in New York
 
 for item in dataset:

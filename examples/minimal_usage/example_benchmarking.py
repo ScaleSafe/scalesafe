@@ -1,5 +1,5 @@
 from scalesafe.benchmarking import Benchmarker
-dataset = Benchmarker('nyEmploymentScreeningText', api_key='SCALESAFE_API_KEY') # Example bias screening for employment AI in New York
+dataset = Benchmarker('simpleMath', api_key='SCALESAFE_API_KEY') # Example bias screening for employment AI in New York
 
 import numpy as np
 for item in dataset:
