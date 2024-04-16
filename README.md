@@ -6,7 +6,7 @@ This codebase is the open-source toolkit for integrating monitoring into an AI s
 
 
 ## How this works?
-You can assess the safety and compliance obligations and limitations of AI system use according to your model, its properties, and where it's being used. Go to [assess.scalesafe.ai](assess.scalesafe.ai) to see the requirements. This will create an account and allow you to begin monitoring. You can find your [API key](app.scalesafe.ai/keys) in the app.
+You can assess the safety and compliance obligations and limitations of AI system use according to your model, its properties, and where it's being used. Go to [scalesafe.ai/assess](https://scalesafe.ai/assess) to see the requirements. This will create an account and allow you to begin monitoring. You can find your [API key](app.scalesafe.ai/keys) in the app.
 
 To integrate with your app, choose the appropriate monitoring class and include it with your AI system / model usage. 
 
